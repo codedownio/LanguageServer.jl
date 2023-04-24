@@ -81,7 +81,7 @@ mutable struct LanguageServerInstance
             true,
             StaticLint.LintOptions(),
             :all,
-            LINT_DIABLED_DIRS,
+            LINT_DISABLED_DIRS,
             :qualify, # options: :import or :qualify, anything else turns this off
             Channel{Any}(Inf),
             err_handler,

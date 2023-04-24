@@ -88,7 +88,7 @@ end
     isnothing(::Nothing) = true
 end
 
-const LINT_DIABLED_DIRS = ["test", "docs"]
+const LINT_DISABLED_DIRS = ["test", "docs"]
 
 function request_julia_config(server::LanguageServerInstance, conn)
     (ismissing(server.clientCapabilities.workspace) || server.clientCapabilities.workspace.configuration !== true) && return
@@ -114,7 +114,7 @@ function request_julia_config(server::LanguageServerInstance, conn)
     new_SL_opts = StaticLint.LintOptions(response[1:10]...)
 
     new_lint_missingrefs = Symbol(something(response[12], :all))
-    new_lint_disableddirs = something(response[13], LINT_DIABLED_DIRS)
+    new_lint_disableddirs = something(response[13], LINT_DISABLED_DIRS)
     new_completion_mode = Symbol(something(response[14], :import))
 
     rerun_lint = begin
