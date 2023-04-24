@@ -67,34 +67,55 @@ mutable struct LanguageServerInstance
     workspace::JuliaWorkspace
 
     function LanguageServerInstance(pipe_in, pipe_out, env_path="", depot_path="", err_handler=nothing, symserver_store_path=nothing, download=true, symbolcache_upstream = nothing)
+        @time "SymbolServer.SymbolServerInstance" begin
+            symbol_server_instance = SymbolServer.SymbolServerInstance(depot_path, symserver_store_path; symbolcache_upstream = symbolcache_upstream)
+        end
+
+        @time "StaticLint.ExternalEnv" begin
+            @time "stdlibs_copy" stdlibs_copy = deepcopy(SymbolServer.stdlibs)
+            @time "extended_methods" extended_methods = SymbolServer.collect_extended_methods(SymbolServer.stdlibs)
+            @time "stdlib_keys" stdlib_keys = collect(keys(SymbolServer.stdlibs))
+            lint_env = StaticLint.ExternalEnv(stdlibs_copy, extended_methods, stdlib_keys)
+        end
+
         new(
             JSONRPC.JSONRPCEndpoint(pipe_in, pipe_out, err_handler),
             Set{String}(),
             Dict{URI,Document}(),
+
             env_path,
             depot_path,
-            SymbolServer.SymbolServerInstance(depot_path, symserver_store_path; symbolcache_upstream = symbolcache_upstream),
+            symbol_server_instance,
             Channel(Inf),
-            StaticLint.ExternalEnv(deepcopy(SymbolServer.stdlibs), SymbolServer.collect_extended_methods(SymbolServer.stdlibs), collect(keys(SymbolServer.stdlibs))),
+            lint_env,
             Dict(),
             false,
+
             true,
             StaticLint.LintOptions(),
             :all,
             LINT_DISABLED_DIRS,
             :qualify, # options: :import or :qualify, anything else turns this off
+
             Channel{Any}(Inf),
+
             err_handler,
+
             :created,
+
             0,
             download,
+
             nothing,
+
             false,
             false,
             missing,
             missing,
             missing,
+
             false,
+
             JuliaWorkspace()
         )
     end

@@ -140,6 +140,7 @@ is_walkdir_error(::Base.SystemError) = true
 end
 
 function initialize_request(params::InitializeParams, server::LanguageServerInstance, conn)
+    @debug "Handling initialize request"
     # Only look at rootUri and rootPath if the client doesn't support workspaceFolders
     if !ismissing(params.capabilities.workspace) && (ismissing(params.capabilities.workspace.workspaceFolders) || params.capabilities.workspace.workspaceFolders == false)
         @debug "Client doesn't support workspace folders"
@@ -182,6 +183,7 @@ function initialize_request(params::InitializeParams, server::LanguageServerInst
         server.initialization_options = params.initializationOptions
     end
 
+    @debug "Returning initialize request"
     return InitializeResult(ServerCapabilities(server.clientCapabilities), missing)
 end
 
