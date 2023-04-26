@@ -67,18 +67,31 @@ mutable struct LanguageServerInstance
     workspace::JuliaWorkspace
 
     function LanguageServerInstance(pipe_in, pipe_out, env_path="", depot_path="", err_handler=nothing, symserver_store_path=nothing, download=true, symbolcache_upstream = nothing)
-        @time "SymbolServer.SymbolServerInstance" begin
+        ret = @timed begin
             symbol_server_instance = SymbolServer.SymbolServerInstance(depot_path, symserver_store_path; symbolcache_upstream = symbolcache_upstream)
         end
+        @debug "SymbolServer.SymbolServerInstance: $(ret.value)"
 
-        @time "StaticLint.ExternalEnv" begin
-            @time "stdlibs_copy" stdlibs_copy = deepcopy(SymbolServer.stdlibs)
-            @time "extended_methods" extended_methods = SymbolServer.collect_extended_methods(SymbolServer.stdlibs)
-            @time "stdlib_keys" stdlib_keys = collect(keys(SymbolServer.stdlibs))
-            lint_env = StaticLint.ExternalEnv(stdlibs_copy, extended_methods, stdlib_keys)
+        ret = @timed begin
+            ret = @timed deepcopy(SymbolServer.stdlibs)
+            @debug "stdlibs_copy: $(ret.time)"
+            stdlibs_copy = ret.value
+
+            ret = @timed  SymbolServer.collect_extended_methods(SymbolServer.stdlibs)
+            @debug "extended_methods: $(ret.time)"
+            extended_methods = ret.value
+
+            ret = @timed collect(keys(SymbolServer.stdlibs))
+            @debug "stdlibs_keys: $(ret.time)"
+            stdlib_keys = ret.value
+
+            ret = @timed StaticLint.ExternalEnv(stdlibs_copy, extended_methods, stdlib_keys)
+            @debug "StaticLint.ExternalEnv call: $(ret.time)"
+            lint_env = ret.value
         end
+        @debug "StaticLint.ExternalEnv total: $(ret.time)"
 
-        new(
+        ret = @timed new(
             JSONRPC.JSONRPCEndpoint(pipe_in, pipe_out, err_handler),
             Set{String}(),
             Dict{URI,Document}(),
@@ -118,6 +131,8 @@ mutable struct LanguageServerInstance
 
             JuliaWorkspace()
         )
+        @debug "LanguageServerInstance constructor time: $(ret.time)"
+        return ret.value
     end
 end
 function Base.display(server::LanguageServerInstance)
@@ -296,6 +311,7 @@ end
 Run the language `server`.
 """
 function Base.run(server::LanguageServerInstance)
+    @debug "Beginning of Base.run"
     server.status = :started
 
     run(server.jr_endpoint)
