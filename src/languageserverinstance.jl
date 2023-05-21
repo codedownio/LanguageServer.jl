@@ -311,7 +311,7 @@ function first_n_items(d::Dict, n::Int)
         if i > n
             break
         end
-        push!(items, (k, v))
+        push!(items, k)
     end
     return items
 end
