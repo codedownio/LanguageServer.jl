@@ -430,6 +430,7 @@ function Base.run(server::LanguageServerInstance)
             server.global_env.project_deps = collect(keys(server.global_env.symbols))
 
             # redo roots_env_map
+            @info "server.roots_env_map keys: $(keys(server.roots_env_map))"
             for (root, _) in server.roots_env_map
                 @debug "resetting get_env_for_root"
                 newenv = get_env_for_root(root, server)
