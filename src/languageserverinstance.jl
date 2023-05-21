@@ -305,6 +305,17 @@ function request_wrapper(func, server::LanguageServerInstance)
     end
 end
 
+function first_n_items(d::Dict, n::Int)
+    items = []
+    for (i, (k, v)) in enumerate(d)
+        if i > n
+            break
+        end
+        push!(items, (k, v))
+    end
+    return items
+end
+
 """
     run(server::LanguageServerInstance)
 
@@ -430,7 +441,7 @@ function Base.run(server::LanguageServerInstance)
             server.global_env.project_deps = collect(keys(server.global_env.symbols))
 
             # redo roots_env_map
-            @info "server.roots_env_map keys: $(keys(server.roots_env_map))"
+            @info "server.roots_env_map keys: $(first_n_items(server.roots_env_map, 20))"
             for (root, _) in server.roots_env_map
                 @debug "resetting get_env_for_root"
                 newenv = get_env_for_root(root, server)
