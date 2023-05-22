@@ -441,10 +441,8 @@ function Base.run(server::LanguageServerInstance)
             server.global_env.project_deps = collect(keys(server.global_env.symbols))
 
             # redo roots_env_map
-            let items = first_n_items(server.roots_env_map, 20)
-            @info "server.roots_env_map keys: $(map((x) -> x._uri, items))"
             for (root, _) in server.roots_env_map
-                @debug "resetting get_env_for_root"
+                @debug "resetting get_env_for_root: $(root._uri)"
                 newenv = get_env_for_root(root, server)
                 if newenv === nothing
                     delete!(server.roots_env_map, root)
