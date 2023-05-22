@@ -149,6 +149,7 @@ function mark_errors(doc, out=Diagnostic[])
         line = 1
         io = IOBuffer(get_text(doc))
         while line < nlines
+            @info "Looking at err: $(errs[i])"
             seek(io, line_offsets[line])
             char = 0
             while line_offsets[line] <= offset < line_offsets[line + 1]
