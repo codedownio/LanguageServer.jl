@@ -442,7 +442,7 @@ function Base.run(server::LanguageServerInstance)
 
             # redo roots_env_map
             for (root, _) in server.roots_env_map
-                @debug "resetting get_env_for_root: $(root._uri)"
+                @debug "resetting get_env_for_root: $(get_uri(root))"
                 newenv = get_env_for_root(root, server)
                 if newenv === nothing
                     delete!(server.roots_env_map, root)
