@@ -441,15 +441,15 @@ function Base.run(server::LanguageServerInstance)
             server.global_env.project_deps = collect(keys(server.global_env.symbols))
 
             # redo roots_env_map
-            for (root, _) in server.roots_env_map
-                @debug "resetting get_env_for_root: $(get_uri(root))"
-                newenv = get_env_for_root(root, server)
-                if newenv === nothing
-                    delete!(server.roots_env_map, root)
-                else
-                    server.roots_env_map[root] = newenv
-                end
-            end
+            # for (root, _) in server.roots_env_map
+            #     @debug "resetting get_env_for_root: $(get_uri(root))"
+            #     newenv = get_env_for_root(root, server)
+            #     if newenv === nothing
+            #         delete!(server.roots_env_map, root)
+            #     else
+            #         server.roots_env_map[root] = newenv
+            #     end
+            # end
 
             @debug "starting re-lint of everything"
             relintserver(server)
